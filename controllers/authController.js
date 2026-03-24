@@ -54,9 +54,6 @@ export const registerUser = async (req, res) => {
       tokenExpiry: Date.now() + 3600000,
     });
 
-    // ✅ Save only once
-    await newUser.save();
-
     // ✅ Send email in background
     const link = `${process.env.FRONTEND_URL}/#/verify-email/${token}`;
     sendEmail(
@@ -108,6 +105,10 @@ export const registerUser = async (req, res) => {
       message: "Registration successful. Please check your email."
     });
 
+    // ✅ Save only once
+    await newUser.save();
+
+    
 
     const userResponse = {
       id: newUser._id,
@@ -166,6 +167,8 @@ export const loginUser = async (req, res) => {
     if (!user.isVerified) {
       return res.status(401).json({
         message: "Please verify your email first",
+        allowResend: true,
+        email: user.email
       });
     }
     if (!isMatch) {
@@ -328,6 +331,51 @@ export const resetPassword = async (req, res) => {
     res.json({ message: "Password reset successful" });
 
   } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+export const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ If already verified
+    if (user.isVerified) {
+      return res.status(400).json({ message: "Email already verified" });
+    }
+
+    // ✅ Generate new token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.verificationToken = token;
+    user.tokenExpiry = Date.now() + 3600000; // 1 hour
+    await user.save();
+
+    const link = `${process.env.FRONTEND_URL}/#/verify-email/${token}`;
+
+    await sendEmail(
+      user.email,
+      "Resend Verification - Online Examination System",
+      `
+      <h2>Hello ${user.name}</h2>
+      <p>Click below to verify your email:</p>
+      <a href="${link}">Verify Email</a>
+      `
+    );
+
+    res.json({ message: "Verification email resent successfully" });
+
+  } catch (error) {
+    console.error("resendVerificationEmail error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

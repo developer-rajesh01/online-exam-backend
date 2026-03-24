@@ -2,7 +2,7 @@ import express from "express";
 import { registerUser, loginUser, logoutUser } from "../controllers/authController.js";
 import protect from "../middlewares/authMiddleware.js";
 import User from "../models/User.js";
-import { forgotPassword, resetPassword } from "../controllers/authController.js";
+import { forgotPassword, resetPassword,resendVerificationEmail } from "../controllers/authController.js";
 
 
 const router = express.Router();
@@ -12,6 +12,7 @@ router.post("/login", loginUser);
 router.post("/logout", protect, logoutUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+router.post("/resend-verification", resendVerificationEmail);
 
 router.get("/verify-email/:token", async (req, res) => {
     const user = await User.findOne({
