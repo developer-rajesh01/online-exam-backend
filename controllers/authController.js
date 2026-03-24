@@ -365,11 +365,46 @@ export const resendVerificationEmail = async (req, res) => {
     await sendEmail(
       user.email,
       "Resend Verification - Online Examination System",
+      "Verify Your Email - Online Examination System",
       `
-      <h2>Hello ${user.name}</h2>
-      <p>Click below to verify your email:</p>
-      <a href="${link}">Verify Email</a>
-      `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
+    
+    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      
+      <!-- Header -->
+      <div style="background: #2c3e50; color: #ffffff; padding: 20px; text-align: center;">
+        <h2 style="margin: 0;">Online Examination System</h2>
+      </div>
+
+      <!-- Body -->
+      <div style="padding: 30px; text-align: center;">
+        <h3 style="color: #333;">Welcome, ${newUser.name} 👋</h3>
+        
+        <p style="color: #555; font-size: 16px;">
+          Thank you for registering. Please verify your email address to continue.
+        </p>
+
+        <!-- Button -->
+        <a href="${link}" 
+           style="display: inline-block; margin-top: 20px; padding: 12px 25px; background: #27ae60; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;">
+           Verify Email
+        </a>
+
+        <p style="margin-top: 20px; color: #888; font-size: 14px;">
+          If you did not create this account, you can ignore this email.
+        </p>
+      </div>
+
+      <!-- Footer -->
+      <div style="background: #ecf0f1; padding: 15px; text-align: center; font-size: 12px; color: #777;">
+        © ${new Date().getFullYear()} Online Examination System <br/>
+        Secure & Reliable Testing Platform
+      </div>
+
+    </div>
+
+  </div>
+  `
     );
 
     res.json({ message: "Verification email resent successfully" });
