@@ -378,7 +378,7 @@ export const resendVerificationEmail = async (req, res) => {
 
       <!-- Body -->
       <div style="padding: 30px; text-align: center;">
-        <h3 style="color: #333;">Welcome, ${newUser.name} 👋</h3>
+        <h3 style="color: #333;">Welcome, </h3>
         
         <p style="color: #555; font-size: 16px;">
           Thank you for registering. Please verify your email address to continue.
