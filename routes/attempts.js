@@ -55,7 +55,6 @@ router.post("/:testId/start", async (req, res) => {
         const { testId } = req.params;
         const { studentEmail } = req.body;
 
-        // 🔥 FIX 1: Validate testId is VALID ObjectId
         if (!mongoose.Types.ObjectId.isValid(testId)) {
             return res.status(400).json({ error: `Invalid testId: ${testId}` });
         }
@@ -65,9 +64,8 @@ router.post("/:testId/start", async (req, res) => {
             return res.status(404).json({ error: "Test not found" });
         }
 
-        // 🔥 FIX 2: Use test._id (ObjectId) not string
         const attempt = new Attempt({
-            testId: test._id,  // ✅ ObjectId!
+            testId: test._id,  
             studentEmail,
             durationMinutes: test.duration,
             totalMarks: test.totalMarks,
@@ -79,7 +77,7 @@ router.post("/:testId/start", async (req, res) => {
         res.status(201).json({
             success: true,
             attemptId: attempt._id,
-            testId: test._id.toString(),  // ✅ Frontend needs string
+            testId: test._id.toString(),  
             durationMinutes: test.duration
         });
     } catch (err) {
@@ -106,7 +104,6 @@ router.put("/:attemptId/submit", async (req, res) => {
 
     const test = attempt.testId;
 
-    // 🔥 flatten questions
     const allQuestions = (test.sections || []).flatMap(sec => sec.questions);
 
     const normalizedAnswers = answers.map(ans => {

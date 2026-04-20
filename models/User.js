@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ["student", "faculty"], required: true },
     institute: { type: String, required: true },
 
-    // ✅ Added field for student's course or batch
+    // Added field for student's course or batch
     branchBatch: {
       type: String,
       required: function () {
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
       },
       default: "",
     },
-    // ✅ Added for single-device login
+    // Added for single-device login
     sessionId: {
       type: String,
       default: null,

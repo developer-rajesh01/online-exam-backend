@@ -1,6 +1,6 @@
 import express from "express";
 import Test from "../models/Test.js";
-import mongoose from 'mongoose'; 
+import mongoose from 'mongoose';
 import protect from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
@@ -38,7 +38,7 @@ router.post("/", protect, async (req, res) => {
     try {
         const { title, duration, startTimestamp, startDate, startTime, targetAudience, institute, author, sections = [], facultyEmail } = req.body;
 
-        console.log("✅ RECEIVED:", { title: title?.slice(0, 30), duration, targetAudience: targetAudience?.slice(0, 30), sections: sections?.length });
+        console.log("RECEIVED:", { title: title?.slice(0, 30), duration, targetAudience: targetAudience?.slice(0, 30), sections: sections?.length });
 
         let start = startTimestamp ? new Date(startTimestamp) : new Date(`${startDate}T${startTime}:00`);
         let end = new Date(start.getTime() + Number(duration) * 60000);
@@ -57,45 +57,44 @@ router.post("/", protect, async (req, res) => {
             institute,
             facultyEmail: facultyEmail || author || "admin@exam.com",
             status: computeLiveStatus(start, end),
-            // ✅ FIXED ObjectId GENERATION:
             sections: sections.map((sec, secIdx) => {
                 console.log(`🔍 Section ${secIdx}:`, sec.questions.map(q => ({
                     text: q.questionText.slice(0, 30),
-                    correctIdx: q.correctIdx,  // ← DEBUG THIS!
+                    correctIdx: q.correctIdx,  
                     hasOptions: (q.options || []).length
                 })));
 
-                return {
-                    name: sec.name || 'General',
-                    marks: Number(sec.marks ?? 0),
-                    questions: (sec.questions || []).map((q, qIdx) => {
-                        const options = (q.options || []).map((opt, optIdx) => ({
-                            text: opt.text || opt || `Option ${optIdx + 1}`,
-                            _id: new mongoose.Types.ObjectId()
-                        }));
+return {
+    name: sec.name || 'General',
+    marks: Number(sec.marks ?? 0),
+    questions: (sec.questions || []).map((q, qIdx) => {
+        const options = (q.options || []).map((opt, optIdx) => ({
+            text: opt.text || opt || `Option ${optIdx + 1}`,
+            _id: new mongoose.Types.ObjectId()
+        }));
 
-                        // ✅ FIXED: Use correctIdx or default 2 (C option)
-                        const correctIndex = q.correctIdx !== undefined ? q.correctIdx : 2;
-                        console.log(`Q${qIdx}: correctIdx=${q.correctIdx} → using ${correctIndex}`);
+        // ✅ FIXED: Use correctIdx or default 2 (C option)
+        const correctIndex = q.correctIdx !== undefined ? q.correctIdx : 2;
+        console.log(`Q${qIdx}: correctIdx=${q.correctIdx} → using ${correctIndex}`);
 
-                        return {
-                            questionText: q.questionText || '',
-                            options,
-                            correctOptionId: options[correctIndex]?._id || options[0]._id
-                        }
-                    })
-                }
+        return {
+            questionText: q.questionText || '',
+            options,
+            correctOptionId: options[correctIndex]?._id || options[0]._id
+        }
+    })
+}
             }),
 
-            totalMarks: sections.reduce((sum, sec) => sum + Number(sec.marks || 0), 0)
+totalMarks: sections.reduce((sum, sec) => sum + Number(sec.marks || 0), 0)
         });
 
-        const saved = await testDoc.save();
-        res.status(201).json({ success: true, test: saved });
+const saved = await testDoc.save();
+res.status(201).json({ success: true, test: saved });
     } catch (error) {
-        console.error("SAVE ERROR:", error);
-        res.status(500).json({ message: error.message });
-    }
+    console.error("SAVE ERROR:", error);
+    res.status(500).json({ message: error.message });
+}
 });
 
 
@@ -149,7 +148,7 @@ router.get("/:id", protect, async (req, res) => {
 });
 
 // Update test by id (validate passMarks < totalMarks when updated)
-router.put("/:id", protect , async (req, res) => {
+router.put("/:id", protect, async (req, res) => {
     try {
         const update = { ...req.body };
 
